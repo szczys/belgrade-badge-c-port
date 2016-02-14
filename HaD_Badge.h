@@ -36,6 +36,8 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 (INCLUDING BUT NOT LIMITED TO ANY DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
  */
 
+#include <stdint.h>
+
 extern uint8_t KeyUpPress;
 extern uint8_t KeyMiddlePress;
 extern uint8_t KeyLeftPress;
@@ -123,3 +125,41 @@ const uint8_t ShiftSeq[] = {10, 13, 15, 14, 12, 1, 3, 0, 4, 6, 7, 5, 2, 9, 11, 8
 #define Anode7on()      Anode7lat &= ~(Anode7bit)
 #define Anode7off()     Anode7lat |= Anode7bit
 /**** End anode control functions macros*******/
+
+#define TOTPIXELX       8
+#define TOTPIXELY       16
+
+//LED Control definitions
+#define OFF     0x00
+#define ON      0x0F
+
+//Directions of travel
+#define UP      0
+#define DOWN    1
+#define LEFT    2
+#define RIGHT   3
+//Miscellaneous
+#define ESCAPE  4
+#define NOINPUT 5
+#define BUTTON  6
+
+//Time tracking global
+uint32_t ticks;
+
+
+/*---- Display Prototypes ----*/
+void initDisplay(void);             //Turn on display and set all LEDs off
+void displayClear(void);            //Turn all LEDs off
+void displayPixel(uint8_t x, uint8_t y, uint8_t state); //Set LED to state (ON|OFF)
+void displayClose(void);            //Close the display (used for SDL2 emulator window)
+void displayLatch(void);            //Make display changes visible (can be used for a framebuffer)
+/*--------------------*/
+
+
+
+/*---- Control Prototypes ----*/
+void initControl(void);             //Setup button input
+uint8_t getControl(void);           //Return last pressed button
+void initTime(void);                //Initialize timekeeping hardware
+uint32_t getTime(void);             //Return milliseconds (upcounting)
+void controlDelayMs(uint16_t ms);   //Delay milliseconds (blocking)

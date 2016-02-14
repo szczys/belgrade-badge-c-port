@@ -46,7 +46,6 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 #include "mcc_generated_files/mcc.h"
 #include "HaD_Badge.h"
-#include <stdint.h>
 
 uint8_t KeyUpPress;
 uint8_t KeyMiddlePress;
@@ -55,12 +54,66 @@ uint8_t KeyRightPress;
 
 uint8_t Buffer[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
+//Turn on display and set all LEDs off
+void initDisplay(void) {
+    // Turn on peripherals
+    PeripheralsOn();
+    controlDelayMs(100);
+}
 
-void delayMS(uint16_t milliseconds) {
-    milliseconds = milliseconds/10;
-    while (milliseconds > 0) {
+//Turn all LEDs off
+void displayClear(void) {
+    for (uint8_t i=0; i<16; i++) {
+        Buffer[i] = 0x00;
+    }
+}
+
+//Set LED to state (ON|OFF)
+void displayPixel(uint8_t x, uint8_t y, uint8_t state) {
+    if (state == ON) {
+        Buffer[y] |= 1<<x;
+    }
+    else {
+        Buffer[y] |= 1<<x;
+    }
+}
+
+//Close the display (used for SDL2 emulator window)
+void displayClose(void) {    
+    //Not implemented for hardware but kept for portability
+}
+
+//Make display changes visible (can be used for a framebuffer)
+void displayLatch(void) {
+    //Not implemented for hardware but kept for portability
+}
+
+//Setup button input
+void initControl(void) {
+    
+}
+
+//Return last pressed button
+uint8_t getControl(void) {
+    
+}
+
+//Initialize timekeeping hardware
+void initTime(void) {
+    ticks = 0;
+}
+
+//Return milliseconds (upcounting)
+uint32_t getTime(void) {
+    return ticks;
+}
+
+//Delay milliseconds (blocking)
+void controlDelayMs(uint16_t ms) {
+    ms = ms/10;
+    while (ms > 0) {
         __delay_ms(10);
-        --milliseconds;
+        --ms;
     }
 }
 
@@ -68,33 +121,36 @@ void POST(void) {
     //Test all anode drivers
     LEDtestlat &= ~LEDtestbit;  //Sink to test LEDs
     Anode0on();
-    delayMS(500);
+    controlDelayMs(500);
     Anode0off();
     Anode1on();
-    delayMS(500);
+    controlDelayMs(500);
     Anode1off();
     Anode2on();
-    delayMS(500);
+    controlDelayMs(500);
     Anode2off();
     Anode3on();
-    delayMS(500);
+    controlDelayMs(500);
     Anode3off();
     Anode4on();
-    delayMS(500);
+    controlDelayMs(500);
     Anode4off();
     Anode5on();
-    delayMS(500);
+    controlDelayMs(500);
     Anode5off();
     Anode6on();
-    delayMS(500);
+    controlDelayMs(500);
     Anode6off();
     Anode7on();
-    delayMS(500);
+    controlDelayMs(500);
     Anode7off();
     LEDtestlat |= LEDtestbit;
     //End Anode driver test
     
-    
+    //Fill buffer, will be displayed when POST exits
+    for (uint8_t i=0; i<16; i++) {
+        Buffer[i] = 0xFF;
+    }
 }
 /*
                          Main application
@@ -102,7 +158,14 @@ void POST(void) {
 void main(void) {
     // Initialize the device
     SYSTEM_Initialize();
-
+    
+    initDisplay();
+    initTime();
+    
+    
+    //Self test
+    //POST();
+    
     // If using interrupts in PIC18 High/Low Priority Mode you need to enable the Global High and Low Interrupts
     // If using interrupts in PIC Mid-Range Compatibility Mode you need to enable the Global and Peripheral Interrupts
     // Use the following macros to:
@@ -131,75 +194,8 @@ void main(void) {
     // Disable the Peripheral Interrupts
     //INTERRUPT_PeripheralInterruptDisable();
 
-    //POST();
+    animateBadge();
     
-    for (uint8_t i=0; i<8; i++) {
-        Buffer[i] = 0xFF;
-    }
-    PeripheralsOn();
-    delayMS(100);
-
-    /*
-    while(1) {
-        static uint8_t BitMask = 0b10000000;
-        
-        Anode0off();
-        Anode1off();
-        Anode2off();
-        Anode3off();
-        Anode4off();
-        Anode5off();
-        Anode6off();
-        Anode7off();
-
-        LatchLow();
-        for (uint8_t i=0; i<16; i++) {
-            if (Buffer[ShiftSeq[i]] & BitMask) { DataHigh(); }
-            else { DataLow(); }
-
-
-            ClkHigh();
-            //ClkDelay();
-            ClkLow();
-            //delayMS(100);
-            //ClkStrobe();
-        }
-
-        LatchHigh();
-        switch (BitMask) {
-            case(0b10000000):
-                Anode0on();
-                break;
-            case(0b01000000):
-                Anode1on();
-                break;
-            case(0b00100000):
-                Anode2on();
-                break;
-            case(0b00010000):
-                Anode3on();
-                break;
-            case(0b00001000):
-                Anode4on();
-                break;
-            case(0b00000100):
-                Anode5on();
-                break;
-            case(0b00000010):
-                Anode6on();
-                break;
-            case(0b00000001):
-                Anode7on();
-                break;
-        }
-        
-        BitMask >>= 1;
-        if (BitMask == 0) { BitMask = 0b10000000; }
-        //LATB &= ~(1<<7);
-        delayMS(5);
-        //LEDtestlat &= ~LEDtestbit;  //Sink to test LEDs
-    }
-    */
     while (1) {
                 // Add your application code
         if (KeyUpPress == TRUE) {

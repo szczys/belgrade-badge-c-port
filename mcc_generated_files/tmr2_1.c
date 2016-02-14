@@ -161,9 +161,10 @@ void TMR2_ISR(void) {
     }
 
     BitMask >>= 1;
-    if (BitMask == 0) { BitMask = 0b10000000; }
-    //LATB &= ~(1<<7);
-    //LEDtestlat &= ~LEDtestbit;  //Sink to test LEDs
+    if (BitMask == 0) { 
+        BitMask = 0b10000000;
+        ++ticks; //Roughly 1.25ms has passed. This is close enough
+    }
 }
 
 /**
