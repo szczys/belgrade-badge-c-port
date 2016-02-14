@@ -91,8 +91,6 @@ extern uint8_t Buffer[16];
 #define CONNECTED 1
 #define DISCONNECTED 0
 
-const uint8_t ShiftSeq[] = {10, 13, 15, 14, 12, 1, 3, 0, 4, 6, 7, 5, 2, 9, 11, 8}; // order
-
 // Peripheral power control
 #define PeripheralsOn()     PeriphPwrlat &= ~PeriphPwrbit
 #define PeripheralsOff()    PeriphPwrlat |= PeriphPwrbit

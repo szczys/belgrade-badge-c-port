@@ -52,6 +52,8 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "tmr2.h"
 #include "../HaD_Badge.h"
 
+const uint8_t ShiftSeq[] = {10, 13, 15, 14, 12, 1, 3, 0, 4, 6, 7, 5, 2, 9, 11, 8}; // order
+
 /**
   Section: TMR2 APIs
  */
@@ -163,7 +165,7 @@ void TMR2_ISR(void) {
     BitMask >>= 1;
     if (BitMask == 0) { 
         BitMask = 0b10000000;
-        ++ticks; //Roughly 1.25ms has passed. This is close enough
+        ticks += 10; // Roughly 10ms has passed. This is close enough
     }
 }
 

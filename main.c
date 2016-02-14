@@ -46,6 +46,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 #include "mcc_generated_files/mcc.h"
 #include "HaD_Badge.h"
+#include "bh-badge-animate.h"
 
 uint8_t KeyUpPress;
 uint8_t KeyMiddlePress;
@@ -71,10 +72,10 @@ void displayClear(void) {
 //Set LED to state (ON|OFF)
 void displayPixel(uint8_t x, uint8_t y, uint8_t state) {
     if (state == ON) {
-        Buffer[y] |= 1<<x;
+        Buffer[y] |= 1<<(7-x);
     }
     else {
-        Buffer[y] |= 1<<x;
+        Buffer[y] |= 1<<(7-x);
     }
 }
 
@@ -95,7 +96,7 @@ void initControl(void) {
 
 //Return last pressed button
 uint8_t getControl(void) {
-    
+    return 0;
 }
 
 //Initialize timekeeping hardware
@@ -105,6 +106,8 @@ void initTime(void) {
 
 //Return milliseconds (upcounting)
 uint32_t getTime(void) {
+    //We're adding 10 to this value every in timr2_1.c
+    //every 8th interrupt (~100Hz)
     return ticks;
 }
 
