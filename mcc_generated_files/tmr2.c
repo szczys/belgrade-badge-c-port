@@ -8,12 +8,12 @@
     tmr2.c
 
   @Summary
-    This is the generated driver implementation file for the TMR2 driver using MPLAB® Code Configurator
+    This is the generated driver implementation file for the TMR2 driver using MPLABï¿½ Code Configurator
 
   @Description
     This source file provides APIs for TMR2.
     Generation Information :
-        Product Revision  :  MPLAB® Code Configurator - v2.25.2
+        Product Revision  :  MPLABï¿½ Code Configurator - v2.25.2
         Device            :  PIC18F24K50
         Driver Version    :  2.00
     The generated drivers are tested against the following:
@@ -50,10 +50,9 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 #include <xc.h>
 #include "tmr2.h"
-#include "pin_manager.h"
-#include "..\HaD_Badge.h"
+#include "../HaD_Badge.h"
 
-
+const uint8_t ShiftSeq[] = {10, 13, 15, 14, 12, 1, 3, 0, 4, 6, 7, 5, 2, 9, 11, 8}; // order
 
 /**
   Section: TMR2 APIs
@@ -62,10 +61,10 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 void TMR2_Initialize(void) {
     // Set TMR2 to the options selected in the User Interface
 
-    // TMR2ON off; T2OUTPS 1:2; T2CKPS 1:16; 
+    // TMR2ON off; T2OUTPS 1:8; T2CKPS 1:16; 
     T2CON = 0x0A;
 
-    // PR2 128; 
+    // PR2 255; 
     PR2 = 0x80;
 
     // TMR2 0x0; 
@@ -108,172 +107,91 @@ void TMR2_LoadPeriodRegister(uint8_t periodVal) {
     PR2 = periodVal;
 }
 
-
-
 void TMR2_ISR(void) {
 
-    const uint8_t ShiftSeq[]            = {10, 13, 15, 14, 12, 1, 3, 0, 4, 6, 7, 5, 2, 9, 11, 8}; // order 
-    static uint16_t BitMask             = 0b10000000;
-    static uint8_t KeyUpDebounceCnt     = 0;
-    static uint8_t KeyMiddleDebounceCnt = 0;
-    static uint8_t KeyLeftDebounceCnt   = 0;
-    static uint8_t KeyRightDebounceCnt  = 0;
-    
-    
     // clear the TMR2 interrupt flag
     PIR1bits.TMR2IF = 0;
 
 
-    
-    // add your TMR2 interrupt custom code
-    
-    // Clears all anodes 
-    // could do writes to whole ports but less simple to rewire
-    Anode1_SetHigh();
-    Anode2_SetHigh();    
-    Anode3_SetHigh();
-    Anode4_SetHigh();
-    Anode5_SetHigh();
-    Anode6_SetHigh();
-    Anode7_SetHigh();
-    Anode8_SetHigh();    
-    
-// Executes macro "shift1" total of 16 times in the hardware dependent order 	(112T)
+    static uint8_t BitMask = 0b10000000;
 
-    for (uint8_t i=0; i<16; i++) {    
-            // if bit is position set then light then clock high into shift reg
-        if ((BitMask && Buffer[ShiftSeq[i]]) == '0') {
-            SDO_SetLow();       
-        }
-        else {
-            SDO_SetHigh();
-        }
-        
-        
-        CLK_SetHigh();          // create a clock pulse to clock it into shift register
-        CLK_SetLow();   
+    Anode0off();
+    Anode1off();
+    Anode2off();
+    Anode3off();
+    Anode4off();
+    Anode5off();
+    Anode6off();
+    Anode7off();
+
+    LatchLow();
+    for (uint8_t i=0; i<16; i++) {
+        if (Buffer[ShiftSeq[i]] & BitMask) { DataHigh(); }
+        else { DataLow(); }
+
+
+        ClkHigh();
+        ClkLow();
     }
 
-    
-    // generates one pulse on "latch" pin 											(2T)
-    Latch_SetLow();
-    Latch_SetHigh();    //	latch serial shift reg ---> paralel reg
-
-    switch(BitMask) {
-        case 0b10000000:
-            Anode8_SetLow();
-// unsure what flag is used for            Flag2 = 1;
+    LatchHigh();
+    switch (BitMask) {
+        case(0b10000000):
+            Anode0on();
             break;
-        case 0b01000000:
-            Anode7_SetLow();
+        case(0b01000000):
+            Anode1on();
             break;
-        case 0b00100000:
-            Anode6_SetLow();
+        case(0b00100000):
+            Anode2on();
             break;
-        case 0b00010000:
-            Anode5_SetLow();
+        case(0b00010000):
+            Anode3on();
             break;
-        case 0b00001000:
-            Anode4_SetLow();
-            break;            
-        case 0b00000100:
-            Anode3_SetLow();
-            break;              
-        case 0b00000010:
-            Anode2_SetLow();
-            break;   
-        case 0b00000001:
-            Anode1_SetLow();
-            break;  
-        default :
+        case(0b00001000):
+            Anode4on();
+            break;
+        case(0b00000100):
+            Anode5on();
+            break;
+        case(0b00000010):
+            Anode6on();
+            break;
+        case(0b00000001):
+            Anode7on();
             break;
     }
-            
-// Tests keys in every 8th pass (100 Hz rate)								(3 or 31T)
-    if (BitMask == 0b00000001) {
-        
-        KeyUpPress                      = 0;            // set to no pressed by default
-        if(KeyUp_GetValue() == PRESSED)                   // check if button pressed
-        {
-            KeyUpDebounceCnt++;                         // if pressed then increment count
-            if (KeyUpDebounceCnt > BOUNCE_LIMIT){                  // if pressed after define number of tesets
-                KeyUpPress              = 1;            // set flag that button has transitioned to pressed
-                KeyUpDebounceCnt        = BOUNCE_LIMIT; // lock count to max to prevent rollover    
-            }            
-        }
-        else
-        {
-            KeyUpDebounceCnt = 0;
-        }
 
-        KeyLeftPress                      = 0;            // set to no pressed by default
-        if(KeyLeft_GetValue() == PRESSED)                   // check if button pressed
-        {
-            KeyLeftDebounceCnt++;                         // if pressed then increment count
-            if (KeyLeftDebounceCnt > BOUNCE_LIMIT){       // if pressed after define number of tesets
-                KeyLeftPress              = 1;            // set flag that button has transitioned to pressed
-                KeyLeftDebounceCnt        = BOUNCE_LIMIT; // lock count to max to prevent rollover    
-            }            
+    BitMask >>= 1;
+    if (BitMask == 0) {
+        /* This will trigger a at about 100Hz; use for debounce and timing */
+        
+        //Get scanning ready for next pass
+        BitMask = 0b10000000;
+        
+        //Increment universal timer
+        ticks += 10; // Roughly 10ms has passed. This is close enough
+        
+        
+        //Button Debounce (https://github.com/szczys/Button-Debounce)
+        static unsigned char ct0, ct1, rpt;
+        unsigned char i;
+        
+        i = key_state ^ ~KEY_PIN;    // key changed ?
+        ct0 = ~( ct0 & i );          // reset or count ct0
+        ct1 = ct0 ^ (ct1 & i);       // reset or count ct1
+        i &= ct0 & ct1;              // count until roll over ?
+        key_state ^= i;              // then toggle debounced state
+        key_press |= key_state & i;  // 0->1: key press detect
+
+        if( (key_state & REPEAT_MASK) == 0 )   // check repeat function 
+         rpt = REPEAT_START;      // start delay 
+        if( --rpt == 0 ){ 
+            rpt = REPEAT_NEXT;         // repeat delay 
+            key_rpt |= key_state & REPEAT_MASK; 
         }
-        else
-        {
-            KeyLeftDebounceCnt = 0;
-        }
-        
-        
-        KeyMiddlePress                      = 0;            // set to no pressed by default
-        if(KeyMiddle_GetValue() == PRESSED)                   // check if button pressed
-        {
-            KeyMiddleDebounceCnt++;                         // if pressed then increment count
-            if (KeyMiddleDebounceCnt > BOUNCE_LIMIT){       // if pressed after define number of tesets
-                KeyMiddlePress              = 1;            // set flag that button has transitioned to pressed
-                KeyMiddleDebounceCnt        = BOUNCE_LIMIT; // lock count to max to prevent rollover    
-            }            
-        }
-        else
-        {
-            KeyMiddleDebounceCnt = 0;
-        }     
-        
-        KeyRightPress                      = 0;            // set to no pressed by default
-        if(KeyRight_GetValue() == PRESSED)                   // check if button pressed
-        {
-            KeyRightDebounceCnt++;                         // if pressed then increment count
-            if (KeyRightDebounceCnt > BOUNCE_LIMIT){       // if pressed after define number of tesets
-                KeyRightPress              = 1;            // set flag that button has transitioned to pressed
-                KeyRightDebounceCnt        = BOUNCE_LIMIT; // lock count to max to prevent rollover    
-            }            
-        }
-        else
-        {
-            KeyRightDebounceCnt = 0;
-        }          
-        
-        // check if left & right are pressed and USB is connected
-        // this causes bootloader entry
-        // no debouncing in this case
-        if((KeyLeft_GetValue() == PRESSED) & (KeyRight_GetValue() == PRESSED) & (USBConnected_GetValue() == CONNECTED)){
-            Reset();
-        }       
-        
-        BitMask = BitMask >> 1; // walk along bitmask to next bit
-        if(BitMask == 0) {
-            BitMask = 0b10000000;
-        }
-        
-        
-        
+         
     }
-
-
-												
-
-// unsure function of flag handshake    Flag_handshake = 1;
-
-    
-    
-    
-
 }
 
 /**

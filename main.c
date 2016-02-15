@@ -207,10 +207,7 @@ void main(void) {
     // Disable the Peripheral Interrupts
     //INTERRUPT_PeripheralInterruptDisable();
 
-    ANSELB = 0;
-    TRISB |= 1<<1;
-    WPUB = 0xFF;
-    INTCON2 &= ~(1<<7);
+    INTCON2 &= ~(1<<7); //RBPU must be set low for pin pullups to work (gotcha)
     animateBadge();
     
     while (1) {

@@ -86,8 +86,8 @@
             <setting name="preemptLow" option="true"/>
             <setting name="useIPEN" option="false"/>
             <interrupt module="TMR2" name="TMRI" priority="2"/>
-            <file checksum="3526821193" modified="false" name="interrupt_manager_1.c" path="mcc_generated_files/interrupt_manager_1.c"/>
-            <file checksum="651182203" modified="false" name="interrupt_manager_1.h" path="mcc_generated_files/interrupt_manager_1.h"/>
+            <file checksum="3526821193" modified="false" name="interrupt_manager.c" path="mcc_generated_files/interrupt_manager.c"/>
+            <file checksum="651182203" modified="false" name="interrupt_manager.h" path="mcc_generated_files/interrupt_manager.h"/>
         </manager>
     </managers>
     <modules>
@@ -129,8 +129,8 @@
             </initializer>
             <setting name="TMRI" option="true"/>
             <setting name="ticker" option="0"/>
-            <file checksum="2696970281" modified="false" name="tmr2_1.c" path="mcc_generated_files/tmr2_1.c"/>
-            <file checksum="1568441806" modified="false" name="tmr2_1.h" path="mcc_generated_files/tmr2_1.h"/>
+            <file checksum="2696970281" modified="false" name="tmr2.c" path="mcc_generated_files/tmr2.c"/>
+            <file checksum="1568441806" modified="false" name="tmr2.h" path="mcc_generated_files/tmr2.h"/>
         </module>
     </modules>
 </configuration>
