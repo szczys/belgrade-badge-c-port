@@ -144,6 +144,21 @@ extern uint8_t Buffer[16];
 //Time tracking global
 uint32_t ticks;
 
+//button definitions
+#define KEY_PIN		PORTB
+#define KEY0		3	// Left
+#define KEY1		1	// Right
+#define KEY2		0	// Up
+#define KEY3		2   // Down
+
+//Debounce
+#define REPEAT_MASK   (1<<KEY0 | 1<<KEY1 | 1<<KEY2 | 1<<KEY3)   // repeat: key1, key2 
+#define REPEAT_START   50      // after 500ms 
+#define REPEAT_NEXT   20      // every 200ms
+volatile unsigned char key_press;
+volatile unsigned char key_state;
+volatile unsigned char key_rpt;
+
 
 /*---- Display Prototypes ----*/
 void initDisplay(void);             //Turn on display and set all LEDs off

@@ -96,7 +96,12 @@ void initControl(void) {
 
 //Return last pressed button
 uint8_t getControl(void) {
-    return 0;
+    uint8_t key_mask = (1<<KEY1);
+    key_mask &= key_press;	// read key(s)
+    key_press ^= key_mask;	// clear key(s)
+    //return key_mask;
+    if (key_mask) { return LEFT; }
+    else { return 0; }
 }
 
 //Initialize timekeeping hardware
@@ -197,6 +202,10 @@ void main(void) {
     // Disable the Peripheral Interrupts
     //INTERRUPT_PeripheralInterruptDisable();
 
+    ANSELB = 0;
+    TRISB |= 1<<1;
+    WPUB = 0xFF;
+    INTCON2 &= ~(1<<7);
     animateBadge();
     
     while (1) {

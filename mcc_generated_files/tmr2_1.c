@@ -163,9 +163,34 @@ void TMR2_ISR(void) {
     }
 
     BitMask >>= 1;
-    if (BitMask == 0) { 
+    if (BitMask == 0) {
+        /* This will trigger a at about 100Hz; use for debounce and timing */
+        
+        //Get scanning ready for next pass
         BitMask = 0b10000000;
+        
+        //Increment universal timer
         ticks += 10; // Roughly 10ms has passed. This is close enough
+        
+        
+        //Button Debounce (https://github.com/szczys/Button-Debounce)
+        static unsigned char ct0, ct1, rpt;
+        unsigned char i;
+        
+        i = key_state ^ ~KEY_PIN;    // key changed ?
+        ct0 = ~( ct0 & i );          // reset or count ct0
+        ct1 = ct0 ^ (ct1 & i);       // reset or count ct1
+        i &= ct0 & ct1;              // count until roll over ?
+        key_state ^= i;              // then toggle debounced state
+        key_press |= key_state & i;  // 0->1: key press detect
+
+        if( (key_state & REPEAT_MASK) == 0 )   // check repeat function 
+         rpt = REPEAT_START;      // start delay 
+        if( --rpt == 0 ){ 
+            rpt = REPEAT_NEXT;         // repeat delay 
+            key_rpt |= key_state & REPEAT_MASK; 
+        }
+         
     }
 }
 

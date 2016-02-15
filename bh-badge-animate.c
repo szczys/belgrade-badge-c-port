@@ -62,8 +62,17 @@ void clearBuffer(void) {
 }
 
 void writeBuffer(uint8_t x, uint8_t y, uint8_t state) {
-    if (state) { frameBuffer[y] |= 1<<x; }
-    else { frameBuffer[y] &= ~(1<<x); }
+    if (state) { frameBuffer[y] |= 1<<(7-x); }
+    else { frameBuffer[y] &= ~(1<<(7-x)); }
+}
+
+uint8_t readBuffer(uint8_t x, uint8_t y) {
+    if (frameBuffer[y] & 1<<(7-x)) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
 }
     
 void showBuffer(void) {
@@ -270,16 +279,16 @@ void advanceChaser() {
     triggerTime = getTime() + FILLERDELAY;
     
     //Save pixels which will be lost in shift
-    uint8_t firstPix = (1<<0 & frameBuffer[0]);
-    uint8_t lastPix = (1<<7 & frameBuffer[15]);
+    uint8_t firstPix = (1<<7 & frameBuffer[0]);
+    uint8_t lastPix = (1<<0 & frameBuffer[15]);
     
     //Shift top and bottom rows
-    frameBuffer[0] >>= 1;
-    frameBuffer[15] <<= 1;
+    frameBuffer[0] <<= 1;
+    frameBuffer[15] >>= 1;
     
     //Move left column down
     for (uint8_t i=15; i>1; i--) {
-        if (frameBuffer[i-1] & (1<<0)) { writeBuffer(0, i, ON); }
+        if (frameBuffer[i-1] & (1<<7)) { writeBuffer(0, i, ON); }
         else { writeBuffer(0, i, OFF); }
     }
     //Fix lost pixel
@@ -288,7 +297,7 @@ void advanceChaser() {
     
     //Move right column down
     for (uint8_t i=0; i<14; i++) {
-        if (frameBuffer[i+1] & (1<<7)) { writeBuffer(7, i, ON); }
+        if (frameBuffer[i+1] & (1<<0)) { writeBuffer(7, i, ON); }
         else { writeBuffer(7, i, OFF); }
     }
     //Fix lost pixel
@@ -345,7 +354,7 @@ uint8_t advanceBounceBall(struct Balls* thisBall, uint8_t delay, uint8_t toggle)
     }
 
     if (toggle) {
-        if (frameBuffer[thisBall->y] & 1<<thisBall->x) { writeBuffer(thisBall->x, thisBall->y, OFF); }
+        if (readBuffer(thisBall->x, thisBall->y)) { writeBuffer(thisBall->x, thisBall->y, OFF); }
         else { writeBuffer(thisBall->x, thisBall->y, ON); }
     }
     else {
@@ -490,7 +499,7 @@ void animateBadge(void) {
                 initVerticalScroll();
                 break;
             case (RIGHT):
-                initChaser();
+                advanceState();
                 break;
         }
     }
