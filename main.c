@@ -96,12 +96,17 @@ void initControl(void) {
 
 //Return last pressed button
 uint8_t getControl(void) {
-    uint8_t key_mask = (1<<KEY1);
+    uint8_t key_mask = (REPEAT_MASK);
+    INTERRUPT_GlobalInterruptDisable();
     key_mask &= key_press;	// read key(s)
     key_press ^= key_mask;	// clear key(s)
+    INTERRUPT_GlobalInterruptEnable();
     //return key_mask;
-    if (key_mask) { return LEFT; }
-    else { return 0; }
+    if (key_mask & 1<<KEY0) { return LEFT; }
+    if (key_mask & 1<<KEY1) { return RIGHT; }
+    if (key_mask & 1<<KEY2) { return UP; }
+    if (key_mask & 1<<KEY3) { return DOWN; }
+    return 0;
 }
 
 //Initialize timekeeping hardware

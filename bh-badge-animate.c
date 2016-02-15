@@ -499,7 +499,7 @@ void animateBadge(void) {
                 initVerticalScroll();
                 break;
             case (RIGHT):
-                advanceState();
+                initChaser();
                 break;
         }
     }
