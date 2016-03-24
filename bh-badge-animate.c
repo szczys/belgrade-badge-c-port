@@ -78,12 +78,6 @@ uint8_t readBuffer(uint8_t x, uint8_t y) {
 void showBuffer(void) {
     for (uint8_t row=0; row<16; row++) {
         Buffer[row] = frameBuffer[row];
-        /*
-        for (uint8_t col=0; col<8; col++) {
-            if (frameBuffer[row] & 1<<col) { displayPixel(col, row, ON); }
-            else { displayPixel(col, row, OFF); }
-        }
-        */
     }
     displayLatch();
 }
