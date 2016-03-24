@@ -75,7 +75,7 @@ void displayPixel(uint8_t x, uint8_t y, uint8_t state) {
         Buffer[y] |= 1<<(7-x);
     }
     else {
-        Buffer[y] |= 1<<(7-x);
+        Buffer[y] &= ~(1<<(7-x));
     }
 }
 
