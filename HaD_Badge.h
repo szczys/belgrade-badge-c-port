@@ -46,34 +46,34 @@ extern uint8_t KeyRightPress;
 extern uint8_t Buffer[16];
 
 /**** Pin Definitions ********************/
-#define LEDtestlat      LATA
-#define LEDtestbit      (1<<4)
+#define LEDtestlat      LATC
+#define LEDtestbit      (1<<2)
 
 #define PeriphPwrlat    LATB
-#define PeriphPwrbit    (1<<4)
-#define ShiftDatalat    LATA
+#define PeriphPwrbit    (1<<5)
+#define ShiftDatalat    LATB
 #define ShiftDatabit    (1<<3)
 #define ShiftClklat     LATB
-#define ShiftClkbit     (1<<5)
-#define ShiftLatchlat   LATA
-#define ShiftLatchbit   (1<<5)
+#define ShiftClkbit     (1<<1)
+#define ShiftLatchlat   LATB
+#define ShiftLatchbit   (1<<1)
 
 #define Anode0lat       LATA
-#define Anode0bit       (1<<1)
-#define Anode1lat       LATC
+#define Anode0bit       (1<<0)
+#define Anode1lat       LATA
 #define Anode1bit       (1<<1)
-#define Anode2lat       LATC
-#define Anode2bit       (1<<0)
-#define Anode3lat       LATC
-#define Anode3bit       (1<<7)
-#define Anode4lat       LATC
-#define Anode4bit       (1<<6)
+#define Anode2lat       LATA
+#define Anode2bit       (1<<2)
+#define Anode3lat       LATA
+#define Anode3bit       (1<<3)
+#define Anode4lat       LATA
+#define Anode4bit       (1<<4)
 #define Anode5lat       LATA
-#define Anode5bit       (1<<0)
+#define Anode5bit       (1<<5)
 #define Anode6lat       LATA
-#define Anode6bit       (1<<7)
+#define Anode6bit       (1<<6)
 #define Anode7lat       LATA
-#define Anode7bit       (1<<6)
+#define Anode7bit       (1<<7)
 /**** End Pin Definitions ****************/
 
 
@@ -102,8 +102,6 @@ extern uint8_t Buffer[16];
 #define ClkHigh()           do { LATB5 = 1; } while(0) //ShiftClklat |= ShiftClkbit
 #define ClkLow()            do { LATB5 = 0; } while(0) //ShiftClklat &= ~ShiftClkbit
 #define ClkStrobe()         { ClkLow(); ClkDelay(); ClkHigh(); }
-#define LatchHigh()         ShiftLatchlat |= ShiftLatchbit
-#define LatchLow()          ShiftLatchlat &= ~ShiftLatchbit
 
 /**** Anode control function macros ***********/
 #define Anode0on()      Anode0lat &= ~(Anode0bit)

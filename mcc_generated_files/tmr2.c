@@ -124,7 +124,7 @@ void TMR2_ISR(void) {
     Anode6off();
     Anode7off();
 
-    LatchLow();
+    //LatchLow();
     for (uint8_t i=0; i<16; i++) {
         if (Buffer[ShiftSeq[i]] & BitMask) { DataHigh(); }
         else { DataLow(); }
@@ -134,7 +134,7 @@ void TMR2_ISR(void) {
         ClkLow();
     }
 
-    LatchHigh();
+    //LatchHigh();
     switch (BitMask) {
         case(0b10000000):
             Anode0on();
@@ -172,7 +172,7 @@ void TMR2_ISR(void) {
         //Increment universal timer
         ticks += 10; // Roughly 10ms has passed. This is close enough
         
-        
+        /*
         //Button Debounce (https://github.com/szczys/Button-Debounce)
         static unsigned char ct0, ct1, rpt;
         unsigned char i;
@@ -190,7 +190,7 @@ void TMR2_ISR(void) {
             rpt = REPEAT_NEXT;         // repeat delay 
             key_rpt |= key_state & REPEAT_MASK; 
         }
-         
+        */ 
     }
 }
 
